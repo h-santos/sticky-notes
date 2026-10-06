@@ -1,6 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import type { Note, NoteId } from '../model/types';
-import { NoteView } from './NoteView';
+import { NoteView, type NoteController } from './NoteView';
+
+const controller: NoteController = {
+  move: vi.fn(),
+  getBoardSize: () => ({ width: 1024, height: 768 }),
+};
 
 it('positions and sizes the note from its data', () => {
   const note: Note = {
@@ -14,7 +19,7 @@ it('positions and sizes the note from its data', () => {
     z: 3,
   };
 
-  render(<NoteView note={note} />);
+  render(<NoteView note={note} controller={controller} />);
 
   const article = screen.getByRole('article', { name: /note/i });
   expect(article).toHaveAttribute('data-color', 'pink');

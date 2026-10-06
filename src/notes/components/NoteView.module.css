@@ -40,3 +40,13 @@
   flex: 1;
   min-height: 0;
 }
+
+.note[data-interaction] {
+  box-shadow:
+    0 2px 4px rgb(0 0 0 / 0.14),
+    0 12px 28px rgb(0 0 0 / 0.16);
+}
+
+.note[data-interaction='moving'] .grip {
+  cursor: grabbing;
+}

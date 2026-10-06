@@ -1,6 +1,8 @@
+import { useMemo, useReducer, useRef } from 'react';
+import { notesReducer } from '../model/notesReducer';
 import type { Note, NoteId } from '../model/types';
 import styles from './Board.module.css';
-import { NoteView } from './NoteView';
+import { NoteView, type NoteController } from './NoteView';
 
 const SAMPLE_NOTES: readonly Note[] = [
   { id: 'a' as NoteId, x: 80, y: 80, width: 200, height: 160, text: '', color: 'yellow', z: 1 },
@@ -10,11 +12,25 @@ const SAMPLE_NOTES: readonly Note[] = [
 ];
 
 export function Board() {
+  const [state, dispatch] = useReducer(notesReducer, { notes: SAMPLE_NOTES });
+  const boardRef = useRef<HTMLElement>(null);
+
+  const controller = useMemo<NoteController>(
+    () => ({
+      move: (id, position) => dispatch({ type: 'move', id, position }),
+      getBoardSize: () => {
+        const bounds = boardRef.current?.getBoundingClientRect();
+        return { width: bounds?.width ?? 0, height: bounds?.height ?? 0 };
+      },
+    }),
+    [],
+  );
+
   return (
-    <main className={styles.board} aria-label="Sticky notes board">
-      {SAMPLE_NOTES.length === 0 && <p className={styles.empty}>No notes yet.</p>}
-      {SAMPLE_NOTES.map((note) => (
-        <NoteView key={note.id} note={note} />
+    <main ref={boardRef} className={styles.board} aria-label="Sticky notes board">
+      {state.notes.length === 0 && <p className={styles.empty}>No notes yet.</p>}
+      {state.notes.map((note) => (
+        <NoteView key={note.id} note={note} controller={controller} />
       ))}
     </main>
   );
