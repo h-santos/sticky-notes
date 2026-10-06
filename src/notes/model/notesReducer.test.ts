@@ -1,4 +1,4 @@
-import { notesReducer, type NotesState } from './notesReducer';
+import { initialNotesState, notesReducer, type NotesAction, type NotesState } from './notesReducer';
 import type { NoteId } from './types';
 
 const id = (value: string) => value as NoteId;
@@ -11,6 +11,21 @@ const state: NotesState = {
 };
 
 describe('notesReducer', () => {
+  it('creates a note on top of existing ones', () => {
+    const create = (noteId: string): NotesAction => ({
+      type: 'create',
+      id: id(noteId),
+      position: { x: 10, y: 20 },
+      size: { width: 150, height: 120 },
+      color: 'yellow',
+    });
+
+    const next = [create('a'), create('b')].reduce(notesReducer, initialNotesState);
+
+    expect(next.notes).toHaveLength(2);
+    expect(next.notes[1]).toMatchObject({ id: 'b', x: 10, y: 20, width: 150, height: 120, z: 2 });
+  });
+
   it('moves a note', () => {
     const next = notesReducer(state, { type: 'move', id: id('a'), position: { x: 300, y: 200 } });
 

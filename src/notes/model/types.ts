@@ -12,5 +12,3 @@ export interface Note extends Rect {
   /** Stacking order; higher values render on top. */
   z: number;
 }
-
-export const MIN_NOTE_SIZE = { width: 80, height: 60 } as const;

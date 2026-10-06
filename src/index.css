@@ -1,6 +1,9 @@
 :root {
   --board-bg: #f4f1ea;
   --muted-text: #8a8577;
+  --accent: #c9a400;
+  /* Highest z-index browsers support; keeps overlays above notes, whose z grows without limit. */
+  --z-top: 2147483647;
   font-family:
     system-ui,
     -apple-system,

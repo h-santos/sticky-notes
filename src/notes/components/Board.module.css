@@ -4,14 +4,27 @@
   height: 100%;
   overflow: hidden;
   background: var(--board-bg);
+  cursor: crosshair;
+  user-select: none;
+  touch-action: none;
 }
 
-.empty {
+.hint {
   position: absolute;
   inset: 0;
   display: grid;
   place-items: center;
   margin: 0;
   color: var(--muted-text);
-  user-select: none;
+  pointer-events: none;
+}
+
+.draft {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: 2px dashed var(--accent);
+  background: rgb(255 243 168 / 0.5);
+  pointer-events: none;
+  z-index: var(--z-top);
 }

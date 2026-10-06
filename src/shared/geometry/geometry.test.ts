@@ -1,10 +1,21 @@
-import { clamp, clampRectPosition } from './geometry';
+import { clamp, clampRectPosition, rectFromPoints } from './geometry';
 
 describe('clamp', () => {
   it('keeps values inside the range', () => {
     expect(clamp(-5, 0, 10)).toBe(0);
     expect(clamp(15, 0, 10)).toBe(10);
     expect(clamp(5, 0, 10)).toBe(5);
+  });
+});
+
+describe('rectFromPoints', () => {
+  it('normalises corners dragged up and to the left', () => {
+    expect(rectFromPoints({ x: 50, y: 40 }, { x: 10, y: 20 })).toEqual({
+      x: 10,
+      y: 20,
+      width: 40,
+      height: 20,
+    });
   });
 });
 

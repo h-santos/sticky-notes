@@ -7,7 +7,8 @@ import {
   type Size,
 } from '../../shared/geometry/geometry';
 import { usePointerDrag } from '../../shared/hooks/usePointerDrag';
-import { MIN_NOTE_SIZE, type Note, type NoteId } from '../model/types';
+import { MIN_NOTE_SIZE } from '../model/constants';
+import type { Note, NoteId } from '../model/types';
 import styles from './NoteView.module.css';
 
 export interface NoteController {
