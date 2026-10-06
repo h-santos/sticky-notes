@@ -8,6 +8,7 @@ const controller: NoteController = {
   remove: vi.fn(),
   bringToFront: vi.fn(),
   editText: vi.fn(),
+  changeColor: vi.fn(),
   getBoardSize: () => ({ width: 1024, height: 768 }),
   isOverTrash: () => false,
   setTrashActive: vi.fn(),

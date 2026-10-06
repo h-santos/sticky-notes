@@ -12,26 +12,30 @@
   will-change: transform;
 }
 
-.note[data-color='yellow'] {
+[data-color='yellow'] {
   --note-bg: #fff3a8;
   --note-grip: #f5e27a;
 }
-.note[data-color='pink'] {
+[data-color='pink'] {
   --note-bg: #ffd1dc;
   --note-grip: #f7b3c4;
 }
-.note[data-color='blue'] {
+[data-color='blue'] {
   --note-bg: #cde8ff;
   --note-grip: #a9d4fa;
 }
-.note[data-color='green'] {
+[data-color='green'] {
   --note-bg: #d4f5c9;
   --note-grip: #b3e6a3;
 }
 
 .grip {
   flex: none;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
   height: 20px;
+  padding: 0 6px;
   background: var(--note-grip);
   cursor: grab;
 }
@@ -93,4 +97,40 @@
 
 .note[data-interaction='deleting'] {
   opacity: 0.5;
+}
+
+.colors {
+  display: flex;
+  gap: 4px;
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  opacity: 0;
+  transition: opacity 120ms ease-out;
+}
+
+.note:hover .colors,
+.note:focus-within .colors {
+  opacity: 1;
+}
+
+.colorRadio {
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  margin: 0;
+  border: 1px solid rgb(0 0 0 / 0.25);
+  border-radius: 50%;
+  background: var(--note-bg);
+  cursor: pointer;
+}
+
+.colorRadio:checked {
+  box-shadow: 0 0 0 2px rgb(0 0 0 / 0.45);
+}
+
+.colorRadio:focus-visible {
+  outline: 2px solid rgb(0 0 0 / 0.6);
+  outline-offset: 1px;
 }

@@ -16,7 +16,7 @@ import { usePointerDrag } from '../../shared/hooks/usePointerDrag';
 import { initialNotesState, notesReducer } from '../model/notesReducer';
 import { DEFAULT_NOTE_SIZE, MIN_NOTE_SIZE } from '../model/constants';
 import { createNoteId } from '../model/noteId';
-import type { NoteId } from '../model/types';
+import type { NoteColor, NoteId } from '../model/types';
 import styles from './Board.module.css';
 import { NoteView, type NoteController } from './NoteView';
 import { Trash } from './Trash';
@@ -32,6 +32,7 @@ export function Board() {
   const trashRef = useRef<HTMLDivElement>(null);
   const [isTrashActive, setTrashActive] = useState(false);
   const [createdNoteId, setCreatedNoteId] = useState<NoteId | null>(null);
+  const [newNoteColor, setNewNoteColor] = useState<NoteColor>('yellow');
 
   const controller = useMemo<NoteController>(
     () => ({
@@ -40,6 +41,10 @@ export function Board() {
       remove: (id) => dispatch({ type: 'remove', id }),
       bringToFront: (id) => dispatch({ type: 'bringToFront', id }),
       editText: (id, text) => dispatch({ type: 'editText', id, text }),
+      changeColor: (id, color) => {
+        dispatch({ type: 'changeColor', id, color });
+        setNewNoteColor(color);
+      },
       isOverTrash: (clientPoint) => {
         const trash = trashRef.current?.getBoundingClientRect();
         return trash ? containsPoint(trash, clientPoint) : false;
@@ -85,7 +90,7 @@ export function Board() {
         id,
         position: { x: clamp(drawn.x, 0, maxX), y: clamp(drawn.y, 0, maxY) },
         size,
-        color: 'yellow',
+        color: newNoteColor,
       });
     },
     onCancel: () => setDraftRect(null),

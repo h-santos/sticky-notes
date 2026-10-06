@@ -181,3 +181,29 @@ describe('Board text editing', () => {
     expect(text).toHaveValue('a'.repeat(MAX_NOTE_TEXT_LENGTH));
   });
 });
+
+describe('Board colours', () => {
+  it('recolours a note and uses that colour for the next one', async () => {
+    const user = userEvent.setup();
+    render(<Board />);
+    drag(board(), [100, 100], [100, 100]);
+
+    await user.click(screen.getByRole('radio', { name: 'pink' }));
+    expect(screen.getByRole('article', { name: 'Note' })).toHaveAttribute('data-color', 'pink');
+
+    drag(board(), [500, 100], [500, 100]);
+    expect(notes()[1]).toHaveAttribute('data-color', 'pink');
+  });
+
+  it('changes the colour with the arrow keys', async () => {
+    const user = userEvent.setup();
+    render(<Board />);
+    drag(board(), [100, 100], [100, 100]);
+
+    screen.getByRole('radio', { name: 'yellow' }).focus();
+    await user.keyboard('{ArrowRight}');
+
+    expect(screen.getByRole('radio', { name: 'pink' })).toBeChecked();
+    expect(screen.getByRole('article', { name: 'Note' })).toHaveAttribute('data-color', 'pink');
+  });
+});

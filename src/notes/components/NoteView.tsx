@@ -8,7 +8,7 @@ import {
 } from '../../shared/geometry/geometry';
 import { usePointerDrag } from '../../shared/hooks/usePointerDrag';
 import { MAX_NOTE_TEXT_LENGTH, MIN_NOTE_SIZE } from '../model/constants';
-import type { Note, NoteId } from '../model/types';
+import { NOTE_COLORS, type Note, type NoteColor, type NoteId } from '../model/types';
 import styles from './NoteView.module.css';
 
 export interface NoteController {
@@ -17,6 +17,7 @@ export interface NoteController {
   remove(id: NoteId): void;
   bringToFront(id: NoteId): void;
   editText(id: NoteId, text: string): void;
+  changeColor(id: NoteId, color: NoteColor): void;
   getBoardSize(): Size;
   /** Whether a client-coordinate point is over the trash zone. */
   isOverTrash(clientPoint: Point): boolean;
@@ -113,7 +114,26 @@ export const NoteView = memo(function NoteView({
         zIndex: note.z,
       }}
     >
-      <header className={styles.grip} onPointerDown={startMove} title="Drag to move" />
+      <header className={styles.grip} onPointerDown={startMove} title="Drag to move">
+        <fieldset
+          className={styles.colors}
+          aria-label="Note colour"
+          onPointerDown={(event) => event.stopPropagation()}
+        >
+          {NOTE_COLORS.map((color) => (
+            <input
+              key={color}
+              type="radio"
+              name={`color-${note.id}`}
+              checked={note.color === color}
+              aria-label={color}
+              className={styles.colorRadio}
+              data-color={color}
+              onChange={() => controller.changeColor(note.id, color)}
+            />
+          ))}
+        </fieldset>
+      </header>
       <textarea
         className={styles.text}
         value={note.text}
