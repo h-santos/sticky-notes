@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { App } from './App';
 
-it('renders the app title', () => {
+it('renders the empty board', () => {
   render(<App />);
-  expect(screen.getByRole('heading', { name: /sticky notes/i })).toBeInTheDocument();
+  expect(screen.getByRole('main', { name: /sticky notes board/i })).toBeInTheDocument();
 });
