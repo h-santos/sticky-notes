@@ -89,7 +89,7 @@ describe('Board note interactions', () => {
   it('resizes a note from its corner, respecting the minimum size', () => {
     render(<Board />);
     const note = createNote();
-    const handle = within(note).getByRole('separator', { name: /resize note/i });
+    const handle = within(note).getByRole('button', { name: /resize note/i });
 
     drag(handle, [300, 260], [350, 300]);
     expect(note).toHaveStyle({ width: '250px', height: '200px' });
@@ -101,7 +101,7 @@ describe('Board note interactions', () => {
   it('keeps a resized note inside the board', () => {
     render(<Board />);
     const note = createNote();
-    const handle = within(note).getByRole('separator', { name: /resize note/i });
+    const handle = within(note).getByRole('button', { name: /resize note/i });
 
     drag(handle, [300, 260], [3000, 3000]);
 
@@ -205,5 +205,57 @@ describe('Board colours', () => {
 
     expect(screen.getByRole('radio', { name: 'pink' })).toBeChecked();
     expect(screen.getByRole('article', { name: 'Note' })).toHaveAttribute('data-color', 'pink');
+  });
+});
+
+describe('Board keyboard support', () => {
+  it('moves and resizes a note with the arrow keys', async () => {
+    const user = userEvent.setup();
+    render(<Board />);
+    drag(board(), [100, 100], [100, 100]);
+    const note = screen.getByRole('article', { name: 'Note' });
+
+    screen.getByRole('button', { name: /move note/i }).focus();
+    await user.keyboard('{ArrowRight}{Shift>}{ArrowDown}{/Shift}');
+    expect(note).toHaveStyle({ transform: 'translate(110px, 150px)' });
+
+    screen.getByRole('button', { name: /resize note/i }).focus();
+    await user.keyboard('{ArrowLeft}');
+    expect(note).toHaveStyle({ width: '190px' });
+  });
+
+  it('creates a note from the toolbar and focuses its text', async () => {
+    const user = userEvent.setup();
+    render(<Board />);
+
+    await user.click(screen.getByRole('button', { name: /new note/i }));
+
+    expect(screen.getByRole('textbox', { name: /note text/i })).toHaveFocus();
+    expect(screen.getByText('Note created')).toBeInTheDocument();
+  });
+
+  it('deletes a note with the Delete key and keeps focus on the board', async () => {
+    const user = userEvent.setup();
+    render(<Board />);
+    await user.click(screen.getByRole('button', { name: /new note/i }));
+
+    screen.getByRole('button', { name: /move note/i }).focus();
+    await user.keyboard('{Delete}');
+
+    expect(screen.queryByRole('article', { name: 'Note' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /new note/i })).toHaveFocus();
+    expect(screen.getByText('Note deleted')).toBeInTheDocument();
+  });
+
+  it('describes the keyboard controls of the note handles', () => {
+    render(<Board />);
+    drag(board(), [100, 100], [100, 100]);
+
+    expect(screen.getByRole('button', { name: /move note/i })).toHaveAccessibleDescription(
+      /arrow keys to move the note/i,
+    );
+    expect(screen.getByRole('button', { name: /resize note/i })).toHaveAccessibleDescription(
+      /arrow keys to resize the note/i,
+    );
   });
 });

@@ -11,6 +11,7 @@ import {
   rectFromPoints,
   type Point,
   type Rect,
+  type Size,
 } from '../../shared/geometry/geometry';
 import { usePointerDrag } from '../../shared/hooks/usePointerDrag';
 import { initialNotesState, notesReducer } from '../model/notesReducer';
@@ -19,10 +20,14 @@ import { createNoteId } from '../model/noteId';
 import type { NoteColor, NoteId } from '../model/types';
 import styles from './Board.module.css';
 import { NoteView, type NoteController } from './NoteView';
+import { KeyboardHelp } from './KeyboardHelp';
 import { Trash } from './Trash';
 
 /** Pointer travel (px) below which a press on the board counts as a click. */
 const CLICK_TOLERANCE = 4;
+/** Notes created from the toolbar cascade from here so they don't stack exactly. */
+const TOOLBAR_NOTE_ORIGIN = { x: 32, y: 64 };
+const TOOLBAR_NOTE_OFFSET = 24;
 
 export function Board() {
   const [state, dispatch] = useReducer(notesReducer, initialNotesState);
@@ -33,12 +38,20 @@ export function Board() {
   const [isTrashActive, setTrashActive] = useState(false);
   const [createdNoteId, setCreatedNoteId] = useState<NoteId | null>(null);
   const [newNoteColor, setNewNoteColor] = useState<NoteColor>('yellow');
+  const [announcement, setAnnouncement] = useState('');
+  const newNoteButtonRef = useRef<HTMLButtonElement>(null);
 
   const controller = useMemo<NoteController>(
     () => ({
       move: (id, position) => dispatch({ type: 'move', id, position }),
       resize: (id, size) => dispatch({ type: 'resize', id, size }),
       remove: (id) => dispatch({ type: 'remove', id }),
+      removeWithKeyboard: (id) => {
+        dispatch({ type: 'remove', id });
+        setAnnouncement('Note deleted');
+        // The focused note is gone; keep focus on the board's main control.
+        newNoteButtonRef.current?.focus();
+      },
       bringToFront: (id) => dispatch({ type: 'bringToFront', id }),
       editText: (id, text) => dispatch({ type: 'editText', id, text }),
       changeColor: (id, color) => {
@@ -67,6 +80,21 @@ export function Board() {
     };
   };
 
+  const createNote = (position: Point, size: Size) => {
+    const id = createNoteId();
+    setCreatedNoteId(id);
+    setAnnouncement('Note created');
+    dispatch({ type: 'create', id, position, size, color: newNoteColor });
+  };
+
+  const createNoteFromToolbar = () => {
+    const offset = (state.notes.length % 10) * TOOLBAR_NOTE_OFFSET;
+    createNote(
+      { x: TOOLBAR_NOTE_ORIGIN.x + offset, y: TOOLBAR_NOTE_ORIGIN.y + offset },
+      DEFAULT_NOTE_SIZE,
+    );
+  };
+
   const startCreating = usePointerDrag({
     onMove: ({ origin, current }) =>
       setDraftRect(rectFromPoints(toBoardPoint(origin), toBoardPoint(current))),
@@ -83,15 +111,7 @@ export function Board() {
       const bounds = boardRef.current?.getBoundingClientRect();
       const maxX = Math.max(0, (bounds?.width ?? 0) - size.width);
       const maxY = Math.max(0, (bounds?.height ?? 0) - size.height);
-      const id = createNoteId();
-      setCreatedNoteId(id);
-      dispatch({
-        type: 'create',
-        id,
-        position: { x: clamp(drawn.x, 0, maxX), y: clamp(drawn.y, 0, maxY) },
-        size,
-        color: newNoteColor,
-      });
+      createNote({ x: clamp(drawn.x, 0, maxX), y: clamp(drawn.y, 0, maxY) }, size);
     },
     onCancel: () => setDraftRect(null),
   });
@@ -108,6 +128,20 @@ export function Board() {
       aria-label="Sticky notes board"
       onPointerDown={handlePointerDown}
     >
+      <div className={styles.toolbar}>
+        <button
+          ref={newNoteButtonRef}
+          type="button"
+          className={styles.newNote}
+          onClick={createNoteFromToolbar}
+        >
+          + New note
+        </button>
+      </div>
+      <KeyboardHelp />
+      <p className={styles.visuallyHidden} aria-live="polite">
+        {announcement}
+      </p>
       {state.notes.length === 0 && !draftRect && (
         <p className={styles.hint}>Click or drag on the board to create a note</p>
       )}

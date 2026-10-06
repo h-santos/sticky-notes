@@ -6,6 +6,7 @@ const controller: NoteController = {
   move: vi.fn(),
   resize: vi.fn(),
   remove: vi.fn(),
+  removeWithKeyboard: vi.fn(),
   bringToFront: vi.fn(),
   editText: vi.fn(),
   changeColor: vi.fn(),

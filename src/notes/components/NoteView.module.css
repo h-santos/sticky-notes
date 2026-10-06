@@ -32,7 +32,7 @@
 .grip {
   flex: none;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   height: 20px;
   padding: 0 6px;
@@ -76,6 +76,8 @@
 
 .resizeHandle {
   position: absolute;
+  padding: 0;
+  border: none;
   right: 0;
   bottom: 0;
   width: 16px;
@@ -133,4 +135,40 @@
 .colorRadio:focus-visible {
   outline: 2px solid rgb(0 0 0 / 0.6);
   outline-offset: 1px;
+}
+
+.moveHandle {
+  width: 24px;
+  height: 14px;
+  padding: 0;
+  border: none;
+  border-radius: 3px;
+  /* Dotted grip texture. */
+  background: radial-gradient(circle, rgb(0 0 0 / 0.3) 1px, transparent 1.5px) 0 0 / 5px 5px;
+  cursor: inherit;
+}
+
+.moveHandle:focus-visible,
+.resizeHandle:focus-visible {
+  outline: 2px solid rgb(0 0 0 / 0.6);
+  outline-offset: 1px;
+}
+
+.keyHint {
+  position: absolute;
+  bottom: 20px;
+  left: 6px;
+  display: none;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgb(0 0 0 / 0.8);
+  color: #fff;
+  font-size: 12px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.note:has(.moveHandle:focus-visible) .keyHint[data-for='move'],
+.note:has(.resizeHandle:focus-visible) .keyHint[data-for='resize'] {
+  display: block;
 }

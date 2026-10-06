@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo, useState, type KeyboardEvent } from 'react';
 import {
   clamp,
   clampRectPosition,
@@ -9,12 +9,16 @@ import {
 import { usePointerDrag } from '../../shared/hooks/usePointerDrag';
 import { MAX_NOTE_TEXT_LENGTH, MIN_NOTE_SIZE } from '../model/constants';
 import { NOTE_COLORS, type Note, type NoteColor, type NoteId } from '../model/types';
+import { arrowKeyDelta, isDeleteKey } from './keyboard';
+import { MOVE_HELP_ID, RESIZE_HELP_ID } from './KeyboardHelp';
 import styles from './NoteView.module.css';
 
 export interface NoteController {
   move(id: NoteId, position: Point): void;
   resize(id: NoteId, size: Size): void;
   remove(id: NoteId): void;
+  /** Deletes a note from the keyboard: announces it and moves focus somewhere sensible. */
+  removeWithKeyboard(id: NoteId): void;
   bringToFront(id: NoteId): void;
   editText(id: NoteId, text: string): void;
   changeColor(id: NoteId, color: NoteColor): void;
@@ -100,6 +104,27 @@ export const NoteView = memo(function NoteView({
     onCancel: reset,
   });
 
+  // Keyboard alternatives to dragging (WCAG 2.5.7), applied directly to the store
+  const handleMoveKeyDown = (event: KeyboardEvent) => {
+    const delta = arrowKeyDelta(event);
+    if (delta) {
+      event.preventDefault();
+      const { x, y } = movedRect(delta);
+      controller.move(note.id, { x, y });
+    } else if (isDeleteKey(event)) {
+      event.preventDefault();
+      controller.removeWithKeyboard(note.id);
+    }
+  };
+
+  const handleResizeKeyDown = (event: KeyboardEvent) => {
+    const delta = arrowKeyDelta(event);
+    if (!delta) return;
+    event.preventDefault();
+    const { width, height } = resizedRect(delta);
+    controller.resize(note.id, { width, height });
+  };
+
   return (
     <article
       className={styles.note}
@@ -107,6 +132,7 @@ export const NoteView = memo(function NoteView({
       data-interaction={interaction ?? undefined}
       aria-label="Note"
       onPointerDown={() => controller.bringToFront(note.id)}
+      onFocus={() => controller.bringToFront(note.id)}
       style={{
         transform: `translate(${rect.x}px, ${rect.y}px)`,
         width: rect.width,
@@ -115,6 +141,13 @@ export const NoteView = memo(function NoteView({
       }}
     >
       <header className={styles.grip} onPointerDown={startMove} title="Drag to move">
+        <button
+          type="button"
+          className={styles.moveHandle}
+          aria-label="Move note"
+          aria-describedby={MOVE_HELP_ID}
+          onKeyDown={handleMoveKeyDown}
+        />
         <fieldset
           className={styles.colors}
           aria-label="Note colour"
@@ -144,13 +177,22 @@ export const NoteView = memo(function NoteView({
         autoFocus={autoFocus}
         spellCheck={false}
       />
-      <div
+      <button
+        type="button"
         className={styles.resizeHandle}
         onPointerDown={startResize}
-        role="separator"
+        onKeyDown={handleResizeKeyDown}
         aria-label="Resize note"
+        aria-describedby={RESIZE_HELP_ID}
         title="Drag to resize"
       />
+      {/* Visible counterpart of KeyboardHelp; screen readers already get it via aria-describedby. */}
+      <span className={styles.keyHint} data-for="move" aria-hidden="true">
+        ↑↓←→ move · Shift: bigger steps · Delete: remove
+      </span>
+      <span className={styles.keyHint} data-for="resize" aria-hidden="true">
+        ↑↓←→ resize · Shift: bigger steps
+      </span>
     </article>
   );
 });
