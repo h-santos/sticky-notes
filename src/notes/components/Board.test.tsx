@@ -107,6 +107,20 @@ describe('Board note interactions', () => {
 
     expect(note).toHaveStyle({ width: '924px', height: '668px' });
   });
+  it('moves focus to the note being dragged', () => {
+    render(<Board />);
+    drag(board(), [100, 100], [100, 100]);
+    drag(board(), [500, 300], [500, 300]);
+    const [first, second] = notes();
+    expect(within(second!).getByRole('textbox', { name: /note text/i })).toHaveFocus();
+
+    drag(first!.querySelector('header')!, [150, 105], [200, 150]);
+    expect(within(first!).getByRole('button', { name: /move note/i })).toHaveFocus();
+
+    drag(within(second!).getByRole('button', { name: /resize note/i }), [700, 460], [720, 480]);
+    expect(within(second!).getByRole('button', { name: /resize note/i })).toHaveFocus();
+  });
+
   it('brings a note to the front when it is pressed', () => {
     render(<Board />);
     drag(board(), [100, 100], [100, 100]);

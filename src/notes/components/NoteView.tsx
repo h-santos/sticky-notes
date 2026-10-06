@@ -1,4 +1,4 @@
-import { memo, useState, type KeyboardEvent } from 'react';
+import { memo, useRef, useState, type KeyboardEvent } from 'react';
 import {
   clamp,
   clampRectPosition,
@@ -46,6 +46,8 @@ export const NoteView = memo(function NoteView({
   // store on release, so a drag re-renders this note alone.
   const [draft, setDraft] = useState<Rect | null>(null);
   const [interaction, setInteraction] = useState<Interaction | null>(null);
+  const moveHandleRef = useRef<HTMLButtonElement>(null);
+  const resizeHandleRef = useRef<HTMLButtonElement>(null);
   const rect = draft ?? note;
 
   const reset = () => {
@@ -73,8 +75,13 @@ export const NoteView = memo(function NoteView({
 
   // Final geometry is recomputed from the drag delta rather than read from
   // draft, which may lag a frame behind the last pointermove.
+  // usePointerDrag cancels the browser's default focus change, so move focus to the pressed
+  // handle explicitly
   const startMove = usePointerDrag({
-    onStart: () => setInteraction('moving'),
+    onStart: () => {
+      moveHandleRef.current?.focus({ preventScroll: true });
+      setInteraction('moving');
+    },
     onMove: ({ delta, current }) => {
       const overTrash = controller.isOverTrash(current);
       setDraft(movedRect(delta));
@@ -94,7 +101,10 @@ export const NoteView = memo(function NoteView({
   });
 
   const startResize = usePointerDrag({
-    onStart: () => setInteraction('resizing'),
+    onStart: () => {
+      resizeHandleRef.current?.focus({ preventScroll: true });
+      setInteraction('resizing');
+    },
     onMove: ({ delta }) => setDraft(resizedRect(delta)),
     onEnd: ({ delta }) => {
       const { width, height } = resizedRect(delta);
@@ -143,6 +153,7 @@ export const NoteView = memo(function NoteView({
       <header className={styles.grip} onPointerDown={startMove} title="Drag to move">
         <button
           type="button"
+          ref={moveHandleRef}
           className={styles.moveHandle}
           aria-label="Move note"
           aria-describedby={MOVE_HELP_ID}
@@ -179,6 +190,7 @@ export const NoteView = memo(function NoteView({
       />
       <button
         type="button"
+        ref={resizeHandleRef}
         className={styles.resizeHandle}
         onPointerDown={startResize}
         onKeyDown={handleResizeKeyDown}
