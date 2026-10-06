@@ -1,11 +1,12 @@
-import type { Point } from '../../shared/geometry/geometry';
+import type { Point, Size } from '../../shared/geometry/geometry';
 import type { Note, NoteId } from './types';
 
 export interface NotesState {
   notes: readonly Note[];
 }
 
-export type NotesAction = { type: 'move'; id: NoteId; position: Point };
+export type NotesAction =
+  { type: 'move'; id: NoteId; position: Point } | { type: 'resize'; id: NoteId; size: Size };
 
 /**
  * Updates a single note. Returns the original state object when the
@@ -32,5 +33,10 @@ export function notesReducer(state: NotesState, action: NotesAction): NotesState
   switch (action.type) {
     case 'move':
       return updateNote(state, action.id, () => ({ x: action.position.x, y: action.position.y }));
+    case 'resize':
+      return updateNote(state, action.id, () => ({
+        width: action.size.width,
+        height: action.size.height,
+      }));
   }
 }

@@ -18,6 +18,17 @@ describe('notesReducer', () => {
     expect(next.notes[1]).toBe(state.notes[1]);
   });
 
+  it('resizes a note', () => {
+    const next = notesReducer(state, {
+      type: 'resize',
+      id: id('a'),
+      size: { width: 90, height: 80 },
+    });
+
+    expect(next.notes[0]).toMatchObject({ x: 10, y: 20, width: 90, height: 80 });
+    expect(next.notes[1]).toBe(state.notes[1]);
+  });
+
   it('returns the same state when nothing changes', () => {
     expect(notesReducer(state, { type: 'move', id: id('b'), position: { x: 50, y: 60 } })).toBe(
       state,
@@ -25,5 +36,8 @@ describe('notesReducer', () => {
     expect(notesReducer(state, { type: 'move', id: id('missing'), position: { x: 0, y: 0 } })).toBe(
       state,
     );
+    expect(
+      notesReducer(state, { type: 'resize', id: id('b'), size: { width: 150, height: 120 } }),
+    ).toBe(state);
   });
 });

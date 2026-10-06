@@ -4,6 +4,7 @@ import { NoteView, type NoteController } from './NoteView';
 
 const controller: NoteController = {
   move: vi.fn(),
+  resize: vi.fn(),
   getBoardSize: () => ({ width: 1024, height: 768 }),
 };
 

@@ -18,6 +18,7 @@ export function Board() {
   const controller = useMemo<NoteController>(
     () => ({
       move: (id, position) => dispatch({ type: 'move', id, position }),
+      resize: (id, size) => dispatch({ type: 'resize', id, size }),
       getBoardSize: () => {
         const bounds = boardRef.current?.getBoundingClientRect();
         return { width: bounds?.width ?? 0, height: bounds?.height ?? 0 };

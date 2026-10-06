@@ -50,3 +50,24 @@
 .note[data-interaction='moving'] .grip {
   cursor: grabbing;
 }
+
+.resizeHandle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 16px;
+  height: 16px;
+  cursor: nwse-resize;
+  /* Diagonal stripes hinting at a grabbable corner. */
+  background: linear-gradient(
+    135deg,
+    transparent 50%,
+    rgb(0 0 0 / 0.18) 50%,
+    rgb(0 0 0 / 0.18) 60%,
+    transparent 60%,
+    transparent 75%,
+    rgb(0 0 0 / 0.18) 75%,
+    rgb(0 0 0 / 0.18) 85%,
+    transparent 85%
+  );
+}
