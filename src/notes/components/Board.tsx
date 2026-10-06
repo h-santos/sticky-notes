@@ -36,6 +36,7 @@ export function Board() {
       move: (id, position) => dispatch({ type: 'move', id, position }),
       resize: (id, size) => dispatch({ type: 'resize', id, size }),
       remove: (id) => dispatch({ type: 'remove', id }),
+      bringToFront: (id) => dispatch({ type: 'bringToFront', id }),
       isOverTrash: (clientPoint) => {
         const trash = trashRef.current?.getBoundingClientRect();
         return trash ? containsPoint(trash, clientPoint) : false;

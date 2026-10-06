@@ -9,7 +9,8 @@ export type NotesAction =
   | { type: 'create'; id: NoteId; position: Point; size: Size; color: NoteColor }
   | { type: 'move'; id: NoteId; position: Point }
   | { type: 'resize'; id: NoteId; size: Size }
-  | { type: 'remove'; id: NoteId };
+  | { type: 'remove'; id: NoteId }
+  | { type: 'bringToFront'; id: NoteId };
 
 export const initialNotesState: NotesState = { notes: [] };
 
@@ -61,6 +62,12 @@ export function notesReducer(state: NotesState, action: NotesAction): NotesState
     case 'remove': {
       const notes = state.notes.filter((note) => note.id !== action.id);
       return notes.length === state.notes.length ? state : { notes };
+    }
+    case 'bringToFront': {
+      const top = topZ(state.notes);
+      return updateNote(state, action.id, (note) =>
+        note.z === top && state.notes.filter((n) => n.z === top).length === 1 ? {} : { z: top + 1 },
+      );
     }
   }
 }

@@ -15,6 +15,7 @@ export interface NoteController {
   move(id: NoteId, position: Point): void;
   resize(id: NoteId, size: Size): void;
   remove(id: NoteId): void;
+  bringToFront(id: NoteId): void;
   getBoardSize(): Size;
   /** Whether a client-coordinate point is over the trash zone. */
   isOverTrash(clientPoint: Point): boolean;
@@ -97,6 +98,7 @@ export const NoteView = memo(function NoteView({ note, controller }: NoteViewPro
       data-color={note.color}
       data-interaction={interaction ?? undefined}
       aria-label="Note"
+      onPointerDown={() => controller.bringToFront(note.id)}
       style={{
         transform: `translate(${rect.x}px, ${rect.y}px)`,
         width: rect.width,

@@ -105,6 +105,17 @@ describe('Board note interactions', () => {
 
     expect(note).toHaveStyle({ width: '924px', height: '668px' });
   });
+  it('brings a note to the front when it is pressed', () => {
+    render(<Board />);
+    drag(board(), [100, 100], [100, 100]);
+    drag(board(), [500, 300], [500, 300]);
+    const [first, second] = notes();
+    expect(Number(second!.style.zIndex)).toBeGreaterThan(Number(first!.style.zIndex));
+
+    fireEvent.pointerDown(first!, { button: 0, pointerId: 1 });
+
+    expect(Number(first!.style.zIndex)).toBeGreaterThan(Number(second!.style.zIndex));
+  });
 });
 
 describe('Board trash', () => {
