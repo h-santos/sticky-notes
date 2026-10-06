@@ -1,0 +1,42 @@
+.note {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--note-bg);
+  border-radius: 2px;
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.12),
+    0 4px 12px rgb(0 0 0 / 0.08);
+  will-change: transform;
+}
+
+.note[data-color='yellow'] {
+  --note-bg: #fff3a8;
+  --note-grip: #f5e27a;
+}
+.note[data-color='pink'] {
+  --note-bg: #ffd1dc;
+  --note-grip: #f7b3c4;
+}
+.note[data-color='blue'] {
+  --note-bg: #cde8ff;
+  --note-grip: #a9d4fa;
+}
+.note[data-color='green'] {
+  --note-bg: #d4f5c9;
+  --note-grip: #b3e6a3;
+}
+
+.grip {
+  flex: none;
+  height: 20px;
+  background: var(--note-grip);
+  cursor: grab;
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+}
