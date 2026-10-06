@@ -57,7 +57,15 @@ describe('notesReducer', () => {
     expect(next.notes[1]).toBe(state.notes[1]);
   });
 
+  it('edits the text of a note', () => {
+    const next = notesReducer(state, { type: 'editText', id: id('a'), text: 'Feed the cats' });
+
+    expect(next.notes[0]?.text).toBe('Feed the cats');
+    expect(next.notes[1]).toBe(state.notes[1]);
+  });
+
   it('returns the same state when nothing changes', () => {
+    expect(notesReducer(state, { type: 'editText', id: id('a'), text: '' })).toBe(state);
     expect(notesReducer(state, { type: 'remove', id: id('missing') })).toBe(state);
     expect(notesReducer(state, { type: 'bringToFront', id: id('b') })).toBe(state);
     expect(notesReducer(state, { type: 'move', id: id('b'), position: { x: 50, y: 60 } })).toBe(

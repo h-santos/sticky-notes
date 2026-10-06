@@ -16,6 +16,7 @@ import { usePointerDrag } from '../../shared/hooks/usePointerDrag';
 import { initialNotesState, notesReducer } from '../model/notesReducer';
 import { DEFAULT_NOTE_SIZE, MIN_NOTE_SIZE } from '../model/constants';
 import { createNoteId } from '../model/noteId';
+import type { NoteId } from '../model/types';
 import styles from './Board.module.css';
 import { NoteView, type NoteController } from './NoteView';
 import { Trash } from './Trash';
@@ -30,6 +31,7 @@ export function Board() {
   const [draftRect, setDraftRect] = useState<Rect | null>(null);
   const trashRef = useRef<HTMLDivElement>(null);
   const [isTrashActive, setTrashActive] = useState(false);
+  const [createdNoteId, setCreatedNoteId] = useState<NoteId | null>(null);
 
   const controller = useMemo<NoteController>(
     () => ({
@@ -37,6 +39,7 @@ export function Board() {
       resize: (id, size) => dispatch({ type: 'resize', id, size }),
       remove: (id) => dispatch({ type: 'remove', id }),
       bringToFront: (id) => dispatch({ type: 'bringToFront', id }),
+      editText: (id, text) => dispatch({ type: 'editText', id, text }),
       isOverTrash: (clientPoint) => {
         const trash = trashRef.current?.getBoundingClientRect();
         return trash ? containsPoint(trash, clientPoint) : false;
@@ -75,9 +78,11 @@ export function Board() {
       const bounds = boardRef.current?.getBoundingClientRect();
       const maxX = Math.max(0, (bounds?.width ?? 0) - size.width);
       const maxY = Math.max(0, (bounds?.height ?? 0) - size.height);
+      const id = createNoteId();
+      setCreatedNoteId(id);
       dispatch({
         type: 'create',
-        id: createNoteId(),
+        id,
         position: { x: clamp(drawn.x, 0, maxX), y: clamp(drawn.y, 0, maxY) },
         size,
         color: 'yellow',
@@ -102,7 +107,12 @@ export function Board() {
         <p className={styles.hint}>Click or drag on the board to create a note</p>
       )}
       {state.notes.map((note) => (
-        <NoteView key={note.id} note={note} controller={controller} />
+        <NoteView
+          key={note.id}
+          note={note}
+          controller={controller}
+          autoFocus={note.id === createdNoteId}
+        />
       ))}
       <Trash ref={trashRef} active={isTrashActive} />
       {draftRect && (

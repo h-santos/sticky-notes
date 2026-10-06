@@ -1,4 +1,6 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { MAX_NOTE_TEXT_LENGTH } from '../model/constants';
 import { Board } from './Board';
 
 const BOARD_RECT = new DOMRect(0, 0, 1024, 768);
@@ -151,5 +153,31 @@ describe('Board trash', () => {
     drag(header, [150, 105], [500, 400]);
 
     expect(screen.getByRole('article', { name: 'Note' })).toBeInTheDocument();
+  });
+});
+
+describe('Board text editing', () => {
+  it('focuses a new note and lets the user type into it', async () => {
+    const user = userEvent.setup();
+    render(<Board />);
+
+    drag(board(), [100, 100], [100, 100]);
+    const text = screen.getByRole('textbox', { name: /note text/i });
+    expect(text).toHaveFocus();
+
+    await user.type(text, 'Call Anna');
+
+    expect(text).toHaveValue('Call Anna');
+  });
+
+  it('limits the note text length', async () => {
+    const user = userEvent.setup();
+    render(<Board />);
+
+    drag(board(), [100, 100], [100, 100]);
+    const text = screen.getByRole('textbox', { name: /note text/i });
+    await user.paste('a'.repeat(MAX_NOTE_TEXT_LENGTH + 1));
+
+    expect(text).toHaveValue('a'.repeat(MAX_NOTE_TEXT_LENGTH));
   });
 });

@@ -7,7 +7,7 @@ import {
   type Size,
 } from '../../shared/geometry/geometry';
 import { usePointerDrag } from '../../shared/hooks/usePointerDrag';
-import { MIN_NOTE_SIZE } from '../model/constants';
+import { MAX_NOTE_TEXT_LENGTH, MIN_NOTE_SIZE } from '../model/constants';
 import type { Note, NoteId } from '../model/types';
 import styles from './NoteView.module.css';
 
@@ -16,6 +16,7 @@ export interface NoteController {
   resize(id: NoteId, size: Size): void;
   remove(id: NoteId): void;
   bringToFront(id: NoteId): void;
+  editText(id: NoteId, text: string): void;
   getBoardSize(): Size;
   /** Whether a client-coordinate point is over the trash zone. */
   isOverTrash(clientPoint: Point): boolean;
@@ -25,11 +26,17 @@ export interface NoteController {
 interface NoteViewProps {
   note: Note;
   controller: NoteController;
+  /** Focuses the text field on mount, e.g. right after the user creates the note. */
+  autoFocus?: boolean;
 }
 
 type Interaction = 'moving' | 'resizing' | 'deleting';
 
-export const NoteView = memo(function NoteView({ note, controller }: NoteViewProps) {
+export const NoteView = memo(function NoteView({
+  note,
+  controller,
+  autoFocus = false,
+}: NoteViewProps) {
   // While dragging, the note renders from local state and only commits to the
   // store on release, so a drag re-renders this note alone.
   const [draft, setDraft] = useState<Rect | null>(null);
@@ -107,7 +114,16 @@ export const NoteView = memo(function NoteView({ note, controller }: NoteViewPro
       }}
     >
       <header className={styles.grip} onPointerDown={startMove} title="Drag to move" />
-      <div className={styles.body} />
+      <textarea
+        className={styles.text}
+        value={note.text}
+        onChange={(event) => controller.editText(note.id, event.target.value)}
+        placeholder="Write something…"
+        aria-label="Note text"
+        maxLength={MAX_NOTE_TEXT_LENGTH}
+        autoFocus={autoFocus}
+        spellCheck={false}
+      />
       <div
         className={styles.resizeHandle}
         onPointerDown={startResize}

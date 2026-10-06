@@ -10,7 +10,8 @@ export type NotesAction =
   | { type: 'move'; id: NoteId; position: Point }
   | { type: 'resize'; id: NoteId; size: Size }
   | { type: 'remove'; id: NoteId }
-  | { type: 'bringToFront'; id: NoteId };
+  | { type: 'bringToFront'; id: NoteId }
+  | { type: 'editText'; id: NoteId; text: string };
 
 export const initialNotesState: NotesState = { notes: [] };
 
@@ -59,6 +60,8 @@ export function notesReducer(state: NotesState, action: NotesAction): NotesState
         width: action.size.width,
         height: action.size.height,
       }));
+    case 'editText':
+      return updateNote(state, action.id, () => ({ text: action.text }));
     case 'remove': {
       const notes = state.notes.filter((note) => note.id !== action.id);
       return notes.length === state.notes.length ? state : { notes };
