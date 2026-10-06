@@ -1,5 +1,5 @@
 import type { KeyboardEvent } from 'react';
-import type { Point } from '../../shared/geometry/geometry';
+import type { Point } from '../geometry/geometry';
 
 const STEP = 10;
 const LARGE_STEP = 50;

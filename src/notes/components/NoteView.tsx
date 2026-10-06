@@ -7,9 +7,9 @@ import {
   type Size,
 } from '../../shared/geometry/geometry';
 import { usePointerDrag } from '../../shared/hooks/usePointerDrag';
+import { arrowKeyDelta, isDeleteKey } from '../../shared/keyboard/keyboard';
 import { MAX_NOTE_TEXT_LENGTH, MIN_NOTE_SIZE } from '../model/constants';
 import { NOTE_COLORS, type Note, type NoteColor, type NoteId } from '../model/types';
-import { arrowKeyDelta, isDeleteKey } from './keyboard';
 import { MOVE_HELP_ID, RESIZE_HELP_ID } from './KeyboardHelp';
 import styles from './NoteView.module.css';
 
