@@ -8,7 +8,8 @@ export interface NotesState {
 export type NotesAction =
   | { type: 'create'; id: NoteId; position: Point; size: Size; color: NoteColor }
   | { type: 'move'; id: NoteId; position: Point }
-  | { type: 'resize'; id: NoteId; size: Size };
+  | { type: 'resize'; id: NoteId; size: Size }
+  | { type: 'remove'; id: NoteId };
 
 export const initialNotesState: NotesState = { notes: [] };
 
@@ -57,5 +58,9 @@ export function notesReducer(state: NotesState, action: NotesAction): NotesState
         width: action.size.width,
         height: action.size.height,
       }));
+    case 'remove': {
+      const notes = state.notes.filter((note) => note.id !== action.id);
+      return notes.length === state.notes.length ? state : { notes };
+    }
   }
 }

@@ -5,7 +5,10 @@ import { NoteView, type NoteController } from './NoteView';
 const controller: NoteController = {
   move: vi.fn(),
   resize: vi.fn(),
+  remove: vi.fn(),
   getBoardSize: () => ({ width: 1024, height: 768 }),
+  isOverTrash: () => false,
+  setTrashActive: vi.fn(),
 };
 
 it('positions and sizes the note from its data', () => {

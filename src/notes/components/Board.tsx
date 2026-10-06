@@ -5,13 +5,20 @@ import {
   useState,
   type PointerEvent as ReactPointerEvent,
 } from 'react';
-import { clamp, rectFromPoints, type Point, type Rect } from '../../shared/geometry/geometry';
+import {
+  clamp,
+  containsPoint,
+  rectFromPoints,
+  type Point,
+  type Rect,
+} from '../../shared/geometry/geometry';
 import { usePointerDrag } from '../../shared/hooks/usePointerDrag';
 import { initialNotesState, notesReducer } from '../model/notesReducer';
 import { DEFAULT_NOTE_SIZE, MIN_NOTE_SIZE } from '../model/constants';
 import { createNoteId } from '../model/noteId';
 import styles from './Board.module.css';
 import { NoteView, type NoteController } from './NoteView';
+import { Trash } from './Trash';
 
 /** Pointer travel (px) below which a press on the board counts as a click. */
 const CLICK_TOLERANCE = 4;
@@ -21,11 +28,19 @@ export function Board() {
   const boardRef = useRef<HTMLElement>(null);
   // Rectangle being drawn to create a note, in board coordinates.
   const [draftRect, setDraftRect] = useState<Rect | null>(null);
+  const trashRef = useRef<HTMLDivElement>(null);
+  const [isTrashActive, setTrashActive] = useState(false);
 
   const controller = useMemo<NoteController>(
     () => ({
       move: (id, position) => dispatch({ type: 'move', id, position }),
       resize: (id, size) => dispatch({ type: 'resize', id, size }),
+      remove: (id) => dispatch({ type: 'remove', id }),
+      isOverTrash: (clientPoint) => {
+        const trash = trashRef.current?.getBoundingClientRect();
+        return trash ? containsPoint(trash, clientPoint) : false;
+      },
+      setTrashActive,
       getBoardSize: () => {
         const bounds = boardRef.current?.getBoundingClientRect();
         return { width: bounds?.width ?? 0, height: bounds?.height ?? 0 };
@@ -88,6 +103,7 @@ export function Board() {
       {state.notes.map((note) => (
         <NoteView key={note.id} note={note} controller={controller} />
       ))}
+      <Trash ref={trashRef} active={isTrashActive} />
       {draftRect && (
         <div
           className={styles.draft}

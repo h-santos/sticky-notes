@@ -14,6 +14,15 @@ export function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
 }
 
+export function containsPoint(rect: Rect, point: Point): boolean {
+  return (
+    point.x >= rect.x &&
+    point.x <= rect.x + rect.width &&
+    point.y >= rect.y &&
+    point.y <= rect.y + rect.height
+  );
+}
+
 // Normalised rectangle spanned by two corners, whichever order they come in
 export function rectFromPoints(a: Point, b: Point): Rect {
   return {

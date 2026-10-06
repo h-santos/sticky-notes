@@ -14,7 +14,11 @@ import styles from './NoteView.module.css';
 export interface NoteController {
   move(id: NoteId, position: Point): void;
   resize(id: NoteId, size: Size): void;
+  remove(id: NoteId): void;
   getBoardSize(): Size;
+  /** Whether a client-coordinate point is over the trash zone. */
+  isOverTrash(clientPoint: Point): boolean;
+  setTrashActive(active: boolean): void;
 }
 
 interface NoteViewProps {
@@ -22,7 +26,7 @@ interface NoteViewProps {
   controller: NoteController;
 }
 
-type Interaction = 'moving' | 'resizing';
+type Interaction = 'moving' | 'resizing' | 'deleting';
 
 export const NoteView = memo(function NoteView({ note, controller }: NoteViewProps) {
   // While dragging, the note renders from local state and only commits to the
@@ -34,6 +38,7 @@ export const NoteView = memo(function NoteView({ note, controller }: NoteViewPro
   const reset = () => {
     setDraft(null);
     setInteraction(null);
+    controller.setTrashActive(false);
   };
 
   const movedRect = (delta: Point): Rect =>
@@ -57,11 +62,20 @@ export const NoteView = memo(function NoteView({ note, controller }: NoteViewPro
   // draft, which may lag a frame behind the last pointermove.
   const startMove = usePointerDrag({
     onStart: () => setInteraction('moving'),
-    onMove: ({ delta }) => setDraft(movedRect(delta)),
-    onEnd: ({ delta }) => {
-      const { x, y } = movedRect(delta);
-      controller.move(note.id, { x, y });
+    onMove: ({ delta, current }) => {
+      const overTrash = controller.isOverTrash(current);
+      setDraft(movedRect(delta));
+      setInteraction(overTrash ? 'deleting' : 'moving');
+      controller.setTrashActive(overTrash);
+    },
+    onEnd: ({ delta, current }) => {
       reset();
+      if (controller.isOverTrash(current)) {
+        controller.remove(note.id);
+      } else {
+        const { x, y } = movedRect(delta);
+        controller.move(note.id, { x, y });
+      }
     },
     onCancel: reset,
   });

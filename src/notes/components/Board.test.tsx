@@ -106,3 +106,39 @@ describe('Board note interactions', () => {
     expect(note).toHaveStyle({ width: '924px', height: '668px' });
   });
 });
+
+describe('Board trash', () => {
+  beforeEach(() => {
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (
+      this: HTMLElement,
+    ) {
+      if (this.tagName === 'MAIN') return BOARD_RECT;
+      if (this.getAttribute('aria-label') === 'Trash') return new DOMRect(872, 632, 128, 112);
+      return new DOMRect();
+    });
+  });
+
+  it('deletes a note dropped on the trash', () => {
+    render(<Board />);
+    drag(board(), [100, 100], [100, 100]);
+    const header = screen.getByRole('article', { name: 'Note' }).querySelector('header')!;
+
+    fireEvent.pointerDown(header, { button: 0, pointerId: 1, clientX: 150, clientY: 105 });
+    fireEvent.pointerMove(window, { pointerId: 1, clientX: 900, clientY: 680 });
+    expect(screen.getByText(/release to delete/i)).toBeInTheDocument();
+    fireEvent.pointerUp(window, { pointerId: 1, clientX: 900, clientY: 680 });
+
+    expect(screen.queryByRole('article', { name: 'Note' })).not.toBeInTheDocument();
+    expect(screen.getByText(/drop here to delete/i)).toBeInTheDocument();
+  });
+
+  it('keeps a note dropped elsewhere', () => {
+    render(<Board />);
+    drag(board(), [100, 100], [100, 100]);
+    const header = screen.getByRole('article', { name: 'Note' }).querySelector('header')!;
+
+    drag(header, [150, 105], [500, 400]);
+
+    expect(screen.getByRole('article', { name: 'Note' })).toBeInTheDocument();
+  });
+});

@@ -1,0 +1,32 @@
+.trash {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  z-index: calc(var(--z-top) - 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 128px;
+  height: 112px;
+  border: 2px dashed var(--muted-text);
+  border-radius: 12px;
+  background: rgb(255 255 255 / 0.6);
+  color: var(--muted-text);
+  font-size: 13px;
+  text-align: center;
+  cursor: default;
+  transition:
+    transform 120ms ease-out,
+    background-color 120ms ease-out,
+    color 120ms ease-out,
+    border-color 120ms ease-out;
+}
+
+.trash[data-active] {
+  transform: scale(1.08);
+  border-color: var(--danger);
+  background: var(--danger);
+  color: #fff;
+}

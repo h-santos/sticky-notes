@@ -71,3 +71,7 @@
     transparent 85%
   );
 }
+
+.note[data-interaction='deleting'] {
+  opacity: 0.5;
+}

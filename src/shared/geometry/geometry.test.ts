@@ -1,10 +1,18 @@
-import { clamp, clampRectPosition, rectFromPoints } from './geometry';
+import { clamp, clampRectPosition, containsPoint, rectFromPoints } from './geometry';
 
 describe('clamp', () => {
   it('keeps values inside the range', () => {
     expect(clamp(-5, 0, 10)).toBe(0);
     expect(clamp(15, 0, 10)).toBe(10);
     expect(clamp(5, 0, 10)).toBe(5);
+  });
+});
+
+describe('containsPoint', () => {
+  it('includes the edges', () => {
+    const rect = { x: 0, y: 0, width: 10, height: 10 };
+    expect(containsPoint(rect, { x: 10, y: 10 })).toBe(true);
+    expect(containsPoint(rect, { x: 11, y: 5 })).toBe(false);
   });
 });
 
